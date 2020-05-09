@@ -1,6 +1,4 @@
 #   imports
-import pandas as pd
-import numpy as np
 from neuprint import Client
 from neuprint import fetch_adjacencies, merge_neuron_properties, NeuronCriteria as NC
 from neuprint import fetch_neurons
@@ -21,8 +19,8 @@ def gui_to_criteria():
     # instance_in = "OA-VPM3"
     # type_in = 'PENPEN_b(PEN2)'
 
-    input_rois_in = ['PB']
-    output_rois_in = ['EB']
+    input_rois_in = ['AL(R)']
+    output_rois_in = ['AL(L)']
 
     criteria_in = NC(inputRois=input_rois_in, outputRois=output_rois_in)
 
@@ -34,8 +32,8 @@ def find_neurons(criteria):
     return neuron_df[['bodyId', 'instance', 'type', 'pre', 'post', 'status', 'cropped', 'size']]
 
 def fetch_adj_and_merge(criteria):
-    random_NC_for_test = NC(type='PEN.*', regex=True)
-    neuron_df, conn_df = fetch_adjacencies(criteria, random_NC_for_test)
+    default_criteria_for_test = NC(inputRois='AB(L)')
+    neuron_df, conn_df = fetch_adjacencies(criteria, default_criteria_for_test)
     conn_df = merge_neuron_properties(neuron_df, conn_df, ['type', 'instance'])
     return conn_df
 
@@ -46,10 +44,12 @@ if __name__ == '__main__':
     df1 = find_neurons(criteria_find)
 
     print('The total count of pre-synaptic and post-synaptic points within each neuron'
-          ' are given in the pre and post columns /n')
+          ' are given in the pre and post columns /n /n')
     print(df1)
 
+    df1.to_csv('fetch_neurons.csv', index=False)
     df2 = fetch_adj_and_merge(criteria_find)
 
-    print('Fetch all direct connections between two sets of neurons /n')
+    print('Fetch all direct connections between two sets of neurons /n /n')
     print(df2)
+    df2.to_csv('adjacency_table.csv', index=False)
