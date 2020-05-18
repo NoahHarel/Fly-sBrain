@@ -3,7 +3,7 @@ from neuprint import Client
 from neuprint import fetch_adjacencies, merge_neuron_properties, NeuronCriteria as NC
 from neuprint import fetch_neurons
 
-#   Client creation
+#   Client creation - option to receive user' own TOKEN
 TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5vYWhoYXJlbEBtYWlsLnRhdS5h' \
         'Yy5pbCIsImxldmVsIjoibm9hdXRoIiwiaW1hZ2UtdXJsIjoiaHR0cHM6Ly9saDYuZ29vZ2xldXNlc' \
         'mNvbnRlbnQuY29tLy13dGxuQlZqSkE2OC9BQUFBQUFBQUFBSS9BQUFBQUFBQUFBQS9BQUtXSkpObG' \
@@ -37,19 +37,35 @@ def fetch_adj_and_merge(criteria):
     conn_df = merge_neuron_properties(neuron_df, conn_df, ['type', 'instance'])
     return conn_df
 
+def simple_query():
+    criteria_find = gui_to_criteria()
+    print('...\n')
+    df1 = find_neurons(criteria_find)
+    print('...\n')
+    print('The total count of pre-synaptic and post-synaptic points within each neuron'
+          ' are given in the pre and post columns \n')
+    #   print(df1)
+    print('...\n')
+    df1.to_csv('fetch_neurons.csv', index=False)
+    print('fetch_neurons.csv file is now ready \n')
+    print('...\n')
+    df2 = fetch_adj_and_merge(criteria_find)
+    print('Fetching all direct connections between two sets of neurons\n')
+    #   print(df2)
+    print('...\n')
+    df2.to_csv('adjacency_table.csv', index=False)
+    print('adjacency_table.csv file is now ready\n')
+
+def get_all_neurons_roi_counts():
+    crit = NC()
+    neuron_df, roi_counts_df = fetch_neurons(crit)
+    neuron_df = neuron_df[['bodyId', 'instance', 'type', 'pre', 'post', 'status', 'cropped', 'size']]
+    neuron_df.to_csv('all_neurons.csv', index = False)
+    roi_counts_df.to_csv('all_roi_counts', index = False)
+
+# def get_all_connections():
+
 
 if __name__ == '__main__':
-    criteria_find = gui_to_criteria()
+    get_all_neurons_roi_counts()
 
-    df1 = find_neurons(criteria_find)
-
-    print('The total count of pre-synaptic and post-synaptic points within each neuron'
-          ' are given in the pre and post columns /n /n')
-    print(df1)
-
-    df1.to_csv('fetch_neurons.csv', index=False)
-    df2 = fetch_adj_and_merge(criteria_find)
-
-    print('Fetch all direct connections between two sets of neurons /n /n')
-    print(df2)
-    df2.to_csv('adjacency_table.csv', index=False)
